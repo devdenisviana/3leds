@@ -1,27 +1,92 @@
-# Controle de LEDs com Botões no Raspberry Pi Pico W (BitdogLab)
+# 🚀 Projeto: Controle de LEDs com Raspberry Pi Pico W
 
-Este projeto demonstra o uso e a configuração de pinos GPIO (General Purpose Input/Output) em um Raspberry Pi Pico W, especificamente em uma placa BitdogLab, para controlar LEDs com botões.
+Este projeto demonstra como utilizar um **Raspberry Pi Pico W** para controlar **LEDs** através de **botões físicos** utilizando a linguagem **C**.
 
-## Descrição
+## 🛠️ Tecnologias Utilizadas
+- **Linguagem C**
+- **SDK do Raspberry Pi Pico**
+- **Placa Raspberry Pi Pico W**
 
-O objetivo principal deste projeto foi praticar e aprimorar o conhecimento sobre o uso de GPIOs no Raspberry Pi Pico W. Através da configuração de pinos como entradas e saídas, foi possível implementar um sistema onde botões controlam o acendimento de LEDs.
+## 📌 Funcionalidade
+Este código permite o controle de três LEDs por meio de três botões. Quando um botão é pressionado, o LED correspondente acende.
 
-O projeto utiliza três botões como entradas digitais para detectar quando são pressionados. Ao pressionar um botão, o pino GPIO correspondente envia um sinal para acender um LED específico. Ao soltar o botão, o LED se apaga.
+## 📂 Estrutura do Código
+```c
+#include "pico/stdlib.h"
+#include "stdio.h"
 
-## Componentes Utilizados
+// Definição dos pinos dos LEDs
+define LED_VERDE 11
+define LED_AZUL 12
+define LED_VERMELHO 13
 
-* **Raspberry Pi Pico W:** O microcontrolador principal, responsável por executar o código e controlar os pinos GPIO.
-* **Placa BitdogLab:** Utilizada como plataforma para facilitar a conexão dos componentes e o desenvolvimento do projeto.
-* **LEDs (Verde, Azul e Vermelho):** Utilizados como indicadores visuais para demonstrar o controle dos pinos GPIO.
-* **Botões:** Utilizados como entradas digitais para interagir com o sistema e controlar os LEDs.
-* **Resistores:** Utilizados para limitar a corrente nos LEDs e para configurar os botões com pull-up.
-* **Fios:** Utilizados para conectar os componentes à placa BitdogLab e ao Raspberry Pi Pico W.
+// Definição dos pinos dos botões
+define BTN_PINA 5
+define BTN_PINB 6
+define BTN_PINC 22
 
-## Recursos Utilizados
+void setup() {
+    int leds[] = {LED_VERDE, LED_AZUL, LED_VERMELHO};
+    for (int i = 0; i < 3; i++) {
+        gpio_init(leds[i]);
+        gpio_set_dir(leds[i], GPIO_OUT);
+        gpio_put(leds[i], 0);
+    }
 
-* **GPIOs (General Purpose Input/Output):** Pinagem do microcontrolador que permite a interação com componentes externos.
-* **Resistores Pull-up:** Configuração utilizada para garantir que os pinos de entrada dos botões tenham um estado definido quando não estão pressionados.
+    int buttons[] = {BTN_PINA, BTN_PINB, BTN_PINC};
+    for (int i = 0; i < 3; i++) {
+        gpio_init(buttons[i]);
+        gpio_set_dir(buttons[i], GPIO_IN);
+        gpio_pull_up(buttons[i]);
+    }
+}
 
-## Objetivo
+int main() {
+    setup();
+    while (true) {
+        gpio_put(LED_VERDE, !gpio_get(BTN_PINA));
+        gpio_put(LED_AZUL, !gpio_get(BTN_PINB));
+        gpio_put(LED_VERMELHO, !gpio_get(BTN_PINC));
+    }
+}
+```
 
-O foco principal deste projeto foi o aprendizado e a prática da configuração e utilização de pinos GPIO em um Raspberry Pi Pico W. O objetivo foi demonstrar a capacidade de controlar dispositivos externos (LEDs) através de entradas digitais (botões), utilizando os recursos de GPIO do microcontrolador.
+## 🔧 Como Configurar
+1. **Instale o SDK do Raspberry Pi Pico** seguindo a [documentação oficial](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf).
+2. **Compile o código** utilizando o CMake e o SDK do Pico.
+   ```bash
+   mkdir build && cd build
+   cmake ..
+   make
+   ```
+3. **Envie o arquivo `.uf2`** para o Raspberry Pi Pico W:
+   - Conecte o Raspberry ao PC segurando o botão **BOOTSEL**.
+   - Copie o arquivo gerado para a unidade montada no sistema.
+4. **Execute o código** e pressione os botões para acender os LEDs!
+
+## 📜 Explicação do Código
+### **setup()**
+- Configura os LEDs como **saída** e os inicia apagados.
+- Configura os botões como **entrada com pull-up interno**.
+
+### **main()**
+- Loop infinito que verifica o estado dos botões:
+  - Se o botão for pressionado (`gpio_get(BTN_PIN) == 0`), o LED correspondente acende.
+
+## 📝 Notas
+- **Os LEDs estão conectados nos pinos 11, 12 e 13**.
+- **Os botões estão conectados nos pinos 5, 6 e 22**.
+- **Os botões utilizam pull-up interno**, então eles são acionados ao conectar ao **GND**.
+
+## 📌 Melhorias Futuras
+- Adicionar **debounce** para evitar leituras falsas dos botões.
+- Implementar **PWM** para controle do brilho dos LEDs.
+- Criar **interrupções** para tornar o código mais eficiente.
+
+## 🔗 Referências
+- [Documentação do SDK do Pico](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf)
+- [Configuração do ambiente de desenvolvimento](https://github.com/raspberrypi/pico-sdk)
+
+---
+💡 **Desenvolvido para projetos de sistemas embarcados com Raspberry Pi Pico W** 🚀
+
